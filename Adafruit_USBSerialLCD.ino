@@ -51,10 +51,10 @@ HardwareSerial Uart = HardwareSerial();
 #endif
 
 // connect these to the analog output (PWM) pins!
-#define REDLITE 0              // D0
-#define GREENLITE 18           // C5
-#define BLUELITE 17            // C6
-#define CONTRASTPIN 15         // B7
+// #define REDLITE 0              // D0
+// #define GREENLITE 18           // C5
+// #define BLUELITE 17            // C6
+// #define CONTRASTPIN 15         // B7
 
 #define GPO_1  8 // PB0
 #define GPO_2  20 // PC2
@@ -162,10 +162,18 @@ void setup() {
   if (COLS > 20) COLS = 20;
   if (ROWS > 4) ROWS = 4;
 
+  #ifdef CONTRASTPIN
   pinMode(CONTRASTPIN, OUTPUT);
+  #endif
+  #ifdef REDLITE
   pinMode(REDLITE, OUTPUT);
+  #endif
+  #ifdef GREENLITE
   pinMode(GREENLITE, OUTPUT);
+  #endif
+  #ifdef BLUELITE
   pinMode(BLUELITE, OUTPUT);
+  #endif
 
 /*** test ****
   setBrightness(255);
@@ -193,10 +201,18 @@ void setup() {
   }
   // for the initial 'blink' we want to use default settings:
   lcd.begin(16, 2);
+  #ifdef CONTRASTPIN
   analogWrite(CONTRASTPIN, 50);  // test contrast
+  #endif
+  #ifdef REDLITE
   analogWrite(REDLITE, 255);
+  #endif
+  #ifdef GREENLITE
   analogWrite(GREENLITE, 255);
+  #endif
+  #ifdef BLUELITE
   analogWrite(BLUELITE, 255);
+  #endif
 
   lcd.clear();
   lcd.home();
@@ -646,9 +662,15 @@ void displayOn() {
 }
 
 void displayOff() {
+  #ifdef REDLITE
   analogWrite(REDLITE, 0);
+  #endif
+  #ifdef GREENLITE
   analogWrite(GREENLITE, 0);
+  #endif
+  #ifdef BLUELITE
   analogWrite(BLUELITE, 0);
+  #endif
 }
 
 void setBrightness(uint8_t brightness) {
@@ -684,9 +706,15 @@ void setBacklight(uint8_t r, uint8_t g, uint8_t b) {
   g = map(g, 0, 255, 0, brightness);
   b = map(b, 0, 255, 0, brightness);
 
+  #ifdef REDLITE
   analogWrite(REDLITE, r);
+  #endif
+  #ifdef GREENLITE
   analogWrite(GREENLITE, g);
+  #endif
+  #ifdef BLUELITE
   analogWrite(BLUELITE, b);
+  #endif
 
   TCNT0 = 127;
   TCNT1 = 0;
