@@ -27,15 +27,19 @@ All text above must be included in any redistribution
 // this will echo incoming chars
 //#define USBECHOCHARS 1
 
-#define D4  1  // PD1
-#define D5  4  // PD4
-#define D6  5  // PD5
-#define D7  6  // PD6
+#define D4  4  // PD1
+#define D5  3  // PD4
+#define D6  2  // PD5
+//#define D7  6  // PD6
 #define RS  12 // PB4
-#define RW  13 // PB5
-#define EN  14 // PB6
+#define RW  11 // PB5
+#define EN  5 // PB6
 
-LiquidCrystal lcd(RS, RW, EN, D4, D5, D6, D7);
+LiquidCrystal lcd(RS, RW, EN, D4, D5, D6
+#ifdef D7
+, D7
+#endif
+);
 
 //#define USEHARDWARESERIAL 0
 
