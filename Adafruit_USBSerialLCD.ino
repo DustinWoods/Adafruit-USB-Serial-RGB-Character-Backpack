@@ -1,14 +1,14 @@
 /***********************************
-Matrix-orbitalish compatible LCD driver with USB and Serial 
+Matrix-orbitalish compatible LCD driver with USB and Serial
 For use with Teensy 1.0 core on AT90USB162 chips
 
 ---> http://www.adafruit.com/category/63_96
 
-Adafruit invests time and resources providing this open source code, 
-please support Adafruit and open-source hardware by purchasing 
+Adafruit invests time and resources providing this open source code,
+please support Adafruit and open-source hardware by purchasing
 products from Adafruit!
 
-Written by Limor Fried/Ladyada  for Adafruit Industries.  
+Written by Limor Fried/Ladyada  for Adafruit Industries.
 BSD license, check license.txt for more information
 All text above must be included in any redistribution
 ****************************************/
@@ -37,8 +37,14 @@ All text above must be included in any redistribution
 
 LiquidCrystal lcd(RS, RW, EN, D4, D5, D6, D7);
 
+#define USEHARDWARESERIAL 0
+
 // This line defines a "Uart" object to access the serial port
+#ifdef USEHARDWARESERIAL
 HardwareSerial Uart = HardwareSerial();
+#else
+#define Uart Serial
+#endif
 
 // connect these to the analog output (PWM) pins!
 #define REDLITE 0              // D0
@@ -116,7 +122,7 @@ uint8_t GPO[] = {GPO_1, GPO_2, GPO_3, GPO_4};
 #define AUTOSCROLL_ADDR 105
 #define BAUDRATE_ADDR 106  // and 107, 108
 #define CONTRAST_ADDR 109
-#define CUSTOMCHARBANKS_ADDR 110  
+#define CUSTOMCHARBANKS_ADDR 110
 // 110 thru 430 !
 #define GPO_1_START_ONOFF_ADDR 431
 #define GPO_2_START_ONOFF_ADDR 432
@@ -145,13 +151,13 @@ int freeMemory() {
 
 void setup() {
   if (getBaud() > 115200) {
-    setBaud(9600); 
+    setBaud(9600);
   } else {
     setBaud(getBaud());
   }
   if (COLS > 20) COLS = 20;
   if (ROWS > 4) ROWS = 4;
-  
+
   pinMode(CONTRASTPIN, OUTPUT);
   pinMode(REDLITE, OUTPUT);
   pinMode(GREENLITE, OUTPUT);
@@ -164,7 +170,7 @@ void setup() {
   setBacklight(0, 255, 0);
   _delay_ms(250);
   setBacklight(0, 0, 255);
-  _delay_ms(250);  
+  _delay_ms(250);
   setBacklight(255, 255, 255);      // set backlight full on
   setContrast(200);                 // default contrast
   setSize(16, 2);                   // default is 16x2
@@ -175,7 +181,7 @@ void setup() {
 /*** test ****/
 
   for(uint8_t i=0; i<4; i++) {       // set all GPO to 'LOW' default
-   if (EEPROM.read(GPO_1_START_ONOFF_ADDR+i)) 
+   if (EEPROM.read(GPO_1_START_ONOFF_ADDR+i))
      digitalWrite(GPO[i], HIGH);
    else
      digitalWrite(GPO[i], LOW);
@@ -205,22 +211,22 @@ void setup() {
   Serial.print(F(" baud "));
   Serial.print(COLS); Serial.print('x'); Serial.print(ROWS);
   Serial.print(F(" constrast = ")); Serial.print(getContrast());
-  
+
   _delay_ms(250);
 
   // now setup the way we expect
   lcd.begin(COLS, ROWS);
   setContrast(getContrast());
   displayOn();
-  
+
 #ifdef USBLCDDEBUG
   // print to USB only
   Serial.print(F("free mem = ")); Serial.println(freeMemory());
 #endif
 
-  
+
   // do splash screen
-  if (EEPROM.read(SPLASH_ADDR) == 0xFF) { 
+  if (EEPROM.read(SPLASH_ADDR) == 0xFF) {
     lcd.clear();
     lcd.home();
     lcd.print(F("USB/Serial LCD"));
@@ -230,7 +236,7 @@ void setup() {
      for (uint8_t i=0; i < ROWS; i++) {
        lcd.setCursor(0,i);
        for (uint8_t j=0; j<COLS; j++) {
-          lcd.write(EEPROM.read(SPLASH_ADDR + j * 40 + i));   
+          lcd.write(EEPROM.read(SPLASH_ADDR + j * 40 + i));
        }
      }
   }
@@ -238,7 +244,7 @@ void setup() {
   _delay_ms(250);
   _delay_ms(250);
   _delay_ms(250);
-  
+
   lcd.clear();
   x = 0; y = 0;
   clearbuffer();
@@ -250,11 +256,11 @@ char displaybuff[20][4];
 
 void loop() {
   byte a, b, c;
-  //parse command loop 
-  
+  //parse command loop
+
   if (serialAvailable()) {
     c = serialBlockingRead();
-    
+
     if (c != MATRIX_STARTL_COMMAND) {
       // not a command, just print the text!
 
@@ -264,16 +270,16 @@ void loop() {
           lcd.print(' '); // fill with spaces
           displaybuff[x][y] = ' ';
           x++;
-        }   
+        }
       } else if (c == 0x0A) {
-       // do nothing 
+       // do nothing
        return;
       } else if (c == 0x08) {
        if (x > 0) x--;
          else {
            x = COLS - 1;
           if (y > 0) y--;
-          else y = ROWS - 1; 
+          else y = ROWS - 1;
          }
          lcd.setCursor(x, y);
          displaybuff[x][y] = ' ';
@@ -284,8 +290,8 @@ void loop() {
       else {
         lcd.print((char)c);
         displaybuff[x][y] = c;
-      } 
-      
+      }
+
       // wrap the cursor
       x++;
       if (x >= COLS) {
@@ -305,7 +311,7 @@ void loop() {
                   //Serial.print("spaces");
                   displaybuff[j][ROWS-1] = ' ';
                 } else {
-                  displaybuff[j][i] = displaybuff[j][i+1];                  
+                  displaybuff[j][i] = displaybuff[j][i+1];
                 }
               }
             }
@@ -373,8 +379,8 @@ void loop() {
          x--; y--;// matrix orbital starts at (1,1) not (0,0)
          if (x >= COLS) { y += x / COLS; x %= COLS; }
          y %= ROWS;
-         lcd.setCursor(x, y);  
-         //Serial.print(F("\nMoving to (")); Serial.print(x, DEC); 
+         lcd.setCursor(x, y);
+         //Serial.print(F("\nMoving to (")); Serial.print(x, DEC);
          //Serial.print(','); Serial.print(y, DEC); Serial.println(')');
          break;
        case MATRIX_MOVECURSOR_BACK:
@@ -382,7 +388,7 @@ void loop() {
          else {
            x = COLS - 1;
           if (y > 0) y--;
-          else y = ROWS - 1; 
+          else y = ROWS - 1;
          }
          lcd.setCursor(x, y);
          break;
@@ -391,7 +397,7 @@ void loop() {
          else {
            x = 0;
           if (y < ROWS - 1) y++;
-          else y = 0; 
+          else y = 0;
          }
          lcd.setCursor(x, y);
          break;
@@ -410,10 +416,10 @@ void loop() {
          for (uint8_t i=0; i < ROWS; i++) {
             for (uint8_t j=0; j<COLS; j++) {
               c = serialBlockingRead();
-              EEPROM.write(SPLASH_ADDR + j * 40 + i, c); 
+              EEPROM.write(SPLASH_ADDR + j * 40 + i, c);
             }
           }
-         break; 
+         break;
        case MATRIX_BAUDRATE:
          c = serialBlockingRead();
          switch (c) {
@@ -437,7 +443,7 @@ void loop() {
          loadCustom(c);
          break;
        case MATRIX_SAVECUSTOMCHARBANK:
-         //Serial.println(F("Custom char")); 
+         //Serial.println(F("Custom char"));
          b = serialBlockingRead();
          c = serialBlockingRead();
          readCustom(c, b);
@@ -461,7 +467,7 @@ void loop() {
           if (a >= 4) return;
           EEPROM.write(GPO_1_START_ONOFF_ADDR+a, b);
           break;
-         /*  hmm this didnt work out, try again later? 
+         /*  hmm this didnt work out, try again later?
        case MATRIX_PLACEMEDIUMDIGIT:
          a = serialBlockingRead();
          b = serialBlockingRead();
@@ -482,13 +488,13 @@ void loop() {
              tl = 3; tr = 2; bl = ' '; br = ' ';
          }
          lcd.setCursor(a, b);
-         lcd.write(tl);        
+         lcd.write(tl);
          lcd.setCursor(a+1, b);
-         lcd.write(tr);        
+         lcd.write(tr);
          lcd.setCursor(a, b+1);
-         lcd.write(bl);        
+         lcd.write(bl);
          lcd.setCursor(a+1, b+1);
-         lcd.write(br);        
+         lcd.write(br);
          break;
          */
        case EXTENDED_RGBBACKLIGHT:
@@ -497,7 +503,7 @@ void loop() {
          c = serialBlockingRead();
          setBacklight(a, b, c);
          break;
-         
+
        case EXTENDED_SETSIZE:
          a = serialBlockingRead();
          b = serialBlockingRead();
@@ -512,13 +518,13 @@ void loop() {
 
 void loadCustom(uint8_t bank) {
   uint8_t newChar[8];
-  
+
   if (bank > 4) return;
-  
+
   int16_t addr = bank;
     addr *= 64;
     addr += CUSTOMCHARBANKS_ADDR;
-    
+
   for (uint8_t loc = 0; loc < 8; loc++) {
     for (uint8_t i=0; i<8; i++) {
      newChar[i] = EEPROM.read(addr);
@@ -538,7 +544,7 @@ void readCustom(uint8_t loc, uint8_t bank) {
   Serial.print(F(" : "));
   Serial.println(loc, DEC);
   */
-  
+
   uint8_t newChar[8];
   for (uint8_t i=0; i<8; i++) {
      newChar[i] = serialBlockingRead();
@@ -553,12 +559,12 @@ void readCustom(uint8_t loc, uint8_t bank) {
     addr *= 64;
     addr += loc * 8;
     addr += CUSTOMCHARBANKS_ADDR;
-    
+
     for (uint8_t i=0; i<8; i++) {
       EEPROM.write(addr + (int16_t)i, newChar[i]);
     }
   }
-} 
+}
 
 uint8_t getContrast() {
   EEPROM.read(CONTRAST_ADDR);
@@ -573,7 +579,7 @@ void setContrast(uint8_t c) {
 
 uint32_t getBaud() {
   uint32_t b;
-  
+
   b = EEPROM.read(BAUDRATE_ADDR);
   b <<= 8;
   b |= EEPROM.read(BAUDRATE_ADDR+1);
@@ -617,8 +623,8 @@ void setBaud(uint32_t baudrate) {
     EEPROM.write(BAUDRATE_ADDR+1, baudrate >> 8);
     EEPROM.write(BAUDRATE_ADDR+2, baudrate & 0xFF);
   }
-  
-  Serial.begin(baudrate); 
+
+  Serial.begin(baudrate);
   Uart.begin(baudrate);
   // the Uart is a little noisy without a pullup, so we'll use the internal one on PD2
   digitalWrite(PD2, HIGH);
@@ -664,7 +670,7 @@ void setBacklight(uint8_t r, uint8_t g, uint8_t b) {
     EEPROM.write(BACKLIGHT_G_ADDR, g);
   if (b != EEPROM.read(BACKLIGHT_B_ADDR))
     EEPROM.write(BACKLIGHT_B_ADDR, b);
-    
+
   uint8_t brightness = EEPROM.read(BACKLIGHT_BRIGHTNESS_ADDR);
   // normalize the red LED
   r = map(r, 0, 255, 0, 100);
@@ -682,7 +688,7 @@ void setBacklight(uint8_t r, uint8_t g, uint8_t b) {
   TCNT1 = 0;
   TCCR0B = 0x01;
   TCCR1B = 0x01;
-  
+
    /*
   Serial.print(F("Brightness: ")); Serial.print(brightness, DEC);
   Serial.print(F(" R = ")); Serial.print(r, DEC);
@@ -715,7 +721,7 @@ void printbuffer() {
   for (uint8_t i=0; i <ROWS; i++) {
     Serial.print('|');
     for (uint8_t j=0; j<COLS; j++) {
-      Serial.print(displaybuff[j][i], BYTE);   
+      Serial.print(displaybuff[j][i], BYTE);
     }
     Serial.println('|');
    }
