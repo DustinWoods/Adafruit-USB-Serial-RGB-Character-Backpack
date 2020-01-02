@@ -56,6 +56,7 @@ HardwareSerial Uart = HardwareSerial();
 // #define BLUELITE 17            // C6
 // #define CONTRASTPIN 15         // B7
 
+// These are extra GPO pins for whatever on/off. Uses MATRIX_GPO_ON/MATRIX_GPO_OFF commands to control. Saves to EEPROM
 #define GPO_1  8 // PB0
 #define GPO_2  20 // PC2
 #define GPO_3  19 //PC4
