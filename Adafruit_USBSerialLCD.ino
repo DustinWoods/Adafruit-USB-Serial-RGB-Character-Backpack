@@ -51,7 +51,7 @@ HardwareSerial Uart = HardwareSerial();
 #endif
 
 // connect these to the analog output (PWM) pins!
-// #define REDLITE 0              // D0
+#define REDLITE 9              // D0
 // #define GREENLITE 18           // C5
 // #define BLUELITE 17            // C6
 // #define CONTRASTPIN 15         // B7
