@@ -6,6 +6,7 @@
  - [ ] Multiple matrix pages (eeprom)
  - [ ] Built-in page for temp
  - [ ] Built-in page for clock
+ - [ ] Commands for changing RTC time/date
 
 
 Firmware & test software for Adafruit's USB+Serial LCD backpack
