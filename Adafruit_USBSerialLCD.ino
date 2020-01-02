@@ -595,7 +595,9 @@ void setContrast(uint8_t c) {
   if (c != getContrast()) {
     EEPROM.write(CONTRAST_ADDR, c);
   }
+  #ifdef CONTRASTPIN
   analogWrite(CONTRASTPIN, 255-c);      // contrast is inverted
+  #endif
 }
 
 uint32_t getBaud() {
