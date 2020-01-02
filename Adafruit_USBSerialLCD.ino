@@ -37,7 +37,7 @@ All text above must be included in any redistribution
 
 LiquidCrystal lcd(RS, RW, EN, D4, D5, D6, D7);
 
-#define USEHARDWARESERIAL 0
+//#define USEHARDWARESERIAL 0
 
 // This line defines a "Uart" object to access the serial port
 #ifdef USEHARDWARESERIAL
